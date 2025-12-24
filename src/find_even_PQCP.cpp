@@ -1,3 +1,8 @@
+// This program finds ADFs with specified conditions
+// which are representations of PQCP
+//
+// Author: Raymond Su, q36141155@gs.ncku.edu.tw
+
 #include<iostream>
 #include<fstream>
 #include<vector>
@@ -18,7 +23,8 @@ int main(int argc, char ** argv)
 
 	/* ----- initial settings ----- */
 
-	/* ----- check necessary conditions ----- */
+
+	/* ----- output found pairs ----- */
 
 	return 0;
 }

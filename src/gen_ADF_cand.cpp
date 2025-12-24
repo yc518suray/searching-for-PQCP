@@ -20,6 +20,7 @@ set<int> Orbit(int a, int H [], int size, int mod);
 void fillZ_L(int (& arr) [], int M);
 void cal_diff(vector<int> A, int (& diff) [], int M, int N);
 void expand_orbit(vector<int> & v, vector<set<int>> a, vector<bool> sel);
+int modulo(int x, int N);
 
 /* ----- main ----- */
 
@@ -32,14 +33,15 @@ int main(int argc, char ** argv)
 	int H[HSize] = {1, 45}; // we are using this H today!
 	int JSize = 20;			// size of index set J, g0
 	int KSize = 19;			// size of index set K, g1
-	int type = 2;			// type 1 -> -4, type 2 -> +4
-	int lambda = JSize + KSize - L / 2 - 2;
+	int type = 1;			// type 1 -> -4, type 2 -> +4
+	int lambda = JSize + KSize - L / 2;
 
 	int Z_L[L] = {0};	
 	fillZ_L(Z_L, L);
 
 	set<set<int>> orbit;
 	set<set<int>> singleton = {{23}, {0}};
+	int singleton_arr[2] = {23, 0};
 
 	/* ----- file I/O settings ----- */
 	char outFnameCanJ[50]; // to store candidates of J
@@ -59,7 +61,6 @@ int main(int argc, char ** argv)
 	ofstream outfileCK(outFnameCanK);
 	
 	/* --- some useful variables --- */
-	int dummy;
 	vector<int> vJ;
 	vector<int> vK;
 	int diff_table[L - 1] = {0};
@@ -80,42 +81,41 @@ int main(int argc, char ** argv)
 	/* ----- J ----- */
 	do
 	{
-		dummy = 0;
 		expand_orbit(vJ, orbit_vec, selectionJ);
-		for(set<int> sing: singleton)
+		for(int i = 0; i < JSize_remainder; i++)
 		{
-			if(++dummy > JSize_remainder) break;
-			vJ.insert(vJ.end(), *(sing.begin()));
+			vJ.insert(vJ.end(), singleton_arr[i]);
 		}
 		cal_diff(vJ, diff_table, L - 1, JSize);
+		sort(vJ.begin(), vJ.end());
 		for(int i = 0; i < L - 1; i++)
 		{
 			outfileCJ << diff_table[i] << " ";
 			diff_table[i] = 0;
 		}
-		outfileCJ << endl;
+		outfileCJ << ", ";
 		for(int v: vJ) outfileCJ << v << " ";
 		outfileCJ << endl;
 
 		vJ.clear();
 	}while(next_permutation(selectionJ.begin(), selectionJ.end()));
+	cout << "finish generating candidates of J\n";
 	/* ----- K ----- */
 	do
 	{
-		dummy = 0;
 		expand_orbit(vK, orbit_vec, selectionK);
-		for(set<int> sing: singleton)
+		for(int i = 0; i < KSize_remainder; i++)
 		{
-			if(++dummy > KSize_remainder) break;
-			vK.insert(vK.end(), *(sing.begin()));
+			vK.insert(vK.end(), singleton_arr[i]);
 		}
+		sort(vK.begin(), vK.end());
 		cal_diff(vK, diff_table, L - 1, KSize);
 		for(int i = 0; i < L - 1; i++)
 		{
 			outfileCK << (lambda - diff_table[i]) << " ";
 			diff_table[i] = 0;
 		}
-		outfileCK << endl;
+		outfileCK << ", ";
 		for(int v: vK) outfileCK << v << " ";
 		outfileCK << endl;
 
@@ -124,7 +124,7 @@ int main(int argc, char ** argv)
 	
 	outfileCJ.close();
 	outfileCK.close();
-	cout << "finish generating candidates of J and K\n";
+	cout << "finish generating candidates of K\n";
 	
 	return 0;
 }
@@ -161,10 +161,10 @@ void cal_diff(vector<int> A, int (& diff) [], int M, int N)
 	B.resize(A.size());
 	copy(A.begin(), A.end(), B.begin());
 
-	for(int i = 0; i < N - 1; i++)
+	for(int k = 0; k < N - 1; k++)
 	{
 		rotate(A.begin(), A.begin() + 1, A.end());
-		for(int i = 0; i < N; i++) ++diff[(A[i] - B[i]) % (M + 1) - 1];
+		for(int i = 0; i < N; i++) ++diff[modulo(A[i] - B[i], M + 1) - 1];
 	}
 }
 
@@ -180,4 +180,10 @@ void expand_orbit(vector<int> & v, vector<set<int>> a, vector<bool> sel)
 			for(int n: a[i]) v.insert(v.end(), n);
 		}
 	}
+}
+
+int modulo(int x, int N)
+{
+	// assume -N < x < N
+	return (x < 0)? x + N: x;
 }
