@@ -88,8 +88,9 @@ int main(int argc, char ** argv)
 		}
 		cal_diff(vJ, diff_table, L - 1, JSize);
 		sort(vJ.begin(), vJ.end());
-		for(int i = 0; i < L - 1; i++)
+		for(int i = 0; i < L / 2; i++)
 		{
+			// due to symmetry of difference table
 			outfileCJ << diff_table[i] << " ";
 			diff_table[i] = 0;
 		}
@@ -110,8 +111,9 @@ int main(int argc, char ** argv)
 		}
 		sort(vK.begin(), vK.end());
 		cal_diff(vK, diff_table, L - 1, KSize);
-		for(int i = 0; i < L - 1; i++)
+		for(int i = 0; i < L / 2; i++)
 		{
+			// due to symmetry of difference table
 			outfileCK << (lambda - diff_table[i]) << " ";
 			diff_table[i] = 0;
 		}
