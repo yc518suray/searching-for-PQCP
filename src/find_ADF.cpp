@@ -17,14 +17,14 @@ void clearTag(int (& A) [], int N);
 bool to_next_group(ifstream & infile, int (& tag) [], int N);
 bool build_group(ifstream & in, vector<vector<int>> & vg, vector<int> & v,\
 				 vector<vector<int>> & dT, int (& tag) [], int N, int M);
-bool tag_not_matched(int A [], int B [], int N);
-bool advance_J(int A [], int B [], int N);
-int match_to_K(vector<int> x, vector<vector<int>> B, int N);
+bool tag_not_matched(int A [], int B [], int N, int type);
+bool advance_J(int A [], int B [], int N, int type);
+int match_to_K(vector<int> x, vector<vector<int>> B, int N, int type);
 
 /* ----- some parameters ----- */
-int L = 46;
-int JSize = 20;
-int KSize = 19;
+int L = 6;
+int JSize = 1;
+int KSize = 4;
 int type = 1;
 
 /* ----- global variables ----- */
@@ -62,19 +62,18 @@ int main(int argc, char ** argv)
 	
 	while(!stop)
 	{
-		if(tag_not_matched(groupTagJ, groupTagK, 3))
+		if(tag_not_matched(groupTagJ, groupTagK, 3, type))
 		{
-			/*
+			// debug
 			cout << "tag not matched" << endl;
 			cout << "tag of J: ";
 			for(int i = 0; i < 3; i++) cout << groupTagJ[i] << " ";
 			cout << "tag of K: ";
 			for(int i = 0; i < 3; i++) cout << groupTagK[i] << " ";
 			cout << endl << endl;
-			*/
-
+			
 			// advance to next J or K candidate group
-			if(advance_J(groupTagJ, groupTagK, 3))
+			if(advance_J(groupTagJ, groupTagK, 3, type))
 			{
 				stop = to_next_group(infileJ, groupTagJ, 3);
 			}
@@ -85,14 +84,13 @@ int main(int argc, char ** argv)
 		}
 		else
 		{
-			/*
+			// debug
 			cout << "tag matched" << endl;
 			cout << "tag of J: ";
 			for(int i = 0; i < 3; i++) cout << groupTagJ[i] << " ";
 			cout << "tag of K: ";
 			for(int i = 0; i < 3; i++) cout << groupTagK[i] << " ";
 			cout << endl << endl;
-			*/
 
 			// build J and K candidates group
 			bool stopJ = build_group(infileJ, vJs, vJ, diffTableJ, groupTagJ, 3, L / 2);
@@ -103,7 +101,7 @@ int main(int argc, char ** argv)
 			int index_J = 0;
 			for(vector<int> diffJx: diffTableJ)
 			{
-				index_K = match_to_K(diffJx, diffTableK, 3);
+				index_K = match_to_K(diffJx, diffTableK, 3, type);
 				if(index_K >= 0)
 				{
 					// found ADFs
@@ -118,10 +116,14 @@ int main(int argc, char ** argv)
 
 			vJs.clear();
 			vKs.clear();
+			diffTableJ.clear();
+			diffTableK.clear();
 		}
 	}
 
 	/* ----- finish everything ----- */
+	cout << "finish finding ADFs" << endl;
+	
 	infileJ.close();
 	infileK.close();
 	outfile.close();
@@ -140,20 +142,22 @@ void clearTag(int (& A) [], int N)
 	for(int i = 0; i < N; i++) A[i] = 0;
 }
 
-bool tag_not_matched(int A [], int B [], int N)
+bool tag_not_matched(int A [], int B [], int N, int type)
 {
 	// A -> tag of group of J candidate sets
 	// B -> tag of group of K candidate sets
 	// N -> size of group tag
+	// type -> type of the PQCP, 1 for +4, 2 for -4
 
 	int cnt = 0;
+	int d = type - 1;
 	for(int i = 0; i < N; i++)
 	{
-		if(A[i] == B[i])
+		if(A[i] == B[i] + d)
 		{
 			cnt += 3;
 		}
-		else if(A[i] == B[i] + 1)
+		else if(A[i] == B[i] + 1 - d)
 		{
 			cnt += 1;
 		}
@@ -162,26 +166,45 @@ bool tag_not_matched(int A [], int B [], int N)
 	else return false;
 }
 
-bool advance_J(int A [], int B [], int N)
+bool advance_J(int A [], int B [], int N, int type)
 {
 	// A -> tag of group of J candidate sets
 	// B -> tag of group of K candidate sets
 	// N -> size of group tag
 
-	for(int i = 0; i < N; i++)
+	int d = type - 1;
+
+	if(A[0] == B[0] + 1 - d)
 	{
-		if(A[i] > B[i])
+		for(int i = 1; i < N; i++)
 		{
-			return false;
+			if(A[i] > B[i] + d)
+			{
+				return false;
+			}
+			else if(A[i] < B[i] + d)
+			{
+				return true;
+			}
+			else;
 		}
-		else if(A[i] < B[i])
+	}
+	else
+	{
+		for(int i = 0; i < N; i++)
 		{
-			return true;
+			if(A[i] > B[i] + d)
+			{
+				return false;
+			}
+			else if(A[i] < B[i] + d)
+			{
+				return true;
+			}
+			else;
 		}
-		else;
 	}
 
-	cerr << "error with advance_J\n";
 	return false;
 }
 
@@ -194,29 +217,22 @@ bool to_next_group(ifstream & infile, int (& tag) [], int N)
 	int tmp_tag[N] = {0};
 
 	infile.ignore(numeric_limits<streamsize>::max(), '\n');
-	if(infile.peek() != EOF)
+	while(true)
 	{
-		while(!reached)
+		for(int i = 0; i < N; i++)
 		{
-			for(int i = 0; i < N; i++)
-			{
-				infile >> tmp_tag[i];
-				if(tmp_tag[i] != tag[i]) reached = true;
-			}
-			if(reached)
-			{
-				for(int i = 0; i < N; i++) tag[i] = tmp_tag[i];
-			}
-			else
-			{
-				infile.ignore(numeric_limits<streamsize>::max(), '\n');
-			}
+			if(!(infile >> tmp_tag[i])) return true;
+			if(tmp_tag[i] != tag[i]) reached = true;
 		}
-		return false;
-	}
-	else
-	{
-		return true;
+		if(reached)
+		{
+			for(int i = 0; i < N; i++) tag[i] = tmp_tag[i];
+			return false;
+		}
+		else
+		{
+			infile.ignore(numeric_limits<streamsize>::max(), '\n');
+		}
 	}
 }
 
@@ -245,6 +261,11 @@ bool build_group(ifstream & in, vector<vector<int>> & vg, vector<int> & v,\
 	{
 		if(in >> diff[0])
 		{
+			if(diff[0] != tag[0])
+			{
+				tag[0] = diff[0];
+				reached = true;
+			}
 			for(int i = 1; i < N; i++)
 			{
 				in >> diff[i];
@@ -272,17 +293,20 @@ bool build_group(ifstream & in, vector<vector<int>> & vg, vector<int> & v,\
 	return false; // not EOF, finish building group
 }
 
-int match_to_K(vector<int> x, vector<vector<int>> B, int N)
+int match_to_K(vector<int> x, vector<vector<int>> B, int N, int type)
 {
 	// x -> single difference table of J candidates
 	// B -> difference tables of K candidates
 	// N -> size of group tag
+	// type -> type of the PQCP, 1 for +4, 2 for -4
+
+	int d = type - 1;
 
 	/* --- check if a mercy already exists --- */
 	int mercy = 0;
 	for(int i = 0; i < N; i++)
 	{
-		if(x[i] != B[0][i]) ++mercy;
+		if(x[i] != B[0][i] + d) ++mercy;
 	}
 
 	/* --- match with B --- */
@@ -292,11 +316,11 @@ int match_to_K(vector<int> x, vector<vector<int>> B, int N)
 	{
 		for(int i = N; i < M; i++)
 		{
-			if(x[i] == y[i] + 1)
+			if(x[i] == y[i] + 1 - d)
 			{
 				++mercy;
 			}
-			else if(x[i] != y[i] + 1)
+			else if(x[i] != y[i] + d)
 			{
 				mercy += 5;
 			}

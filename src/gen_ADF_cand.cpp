@@ -28,20 +28,33 @@ int main(int argc, char ** argv)
 {
 	/* ----- parameter settings ----- */
 	// Note: K is always designated as the set with odd size
-	int L = 46;
+	int L = 6;
 	int HSize = 2;
-	int H[HSize] = {1, 45}; // we are using this H today!
-	int JSize = 20;			// size of index set J, g0
-	int KSize = 19;			// size of index set K, g1
-	int type = 1;			// type 1 -> -4, type 2 -> +4
-	int lambda = JSize + KSize - L / 2;
+	int H[HSize] = {1, 5}; // we are using this H today!
+	int JSize = 1;			// size of index set J, g0
+	int KSize = 4;			// size of index set K, g1
+	int type = 1;			// type 1 -> +4, type 2 -> -4
+	int lambda_choice[2] = {JSize + KSize - L / 2, JSize + KSize - L / 2 - 1};
+	int lambda = lambda_choice[type - 1];
+	int singleton_choice = 0;
+	int orbit_choice = 2;	// 1 -> normal choice 2 -> specified choice
 
 	int Z_L[L] = {0};	
 	fillZ_L(Z_L, L);
 
 	set<set<int>> orbit;
-	set<set<int>> singleton = {{23}, {0}};
-	int singleton_arr[2] = {23, 0};
+	set<set<int>> singleton = {{3}, {0}};
+	int singleton_arr[2];
+	if(singleton_choice == 0)
+	{
+		singleton_arr[0] = 0;
+		singleton_arr[1] = 3;
+	}
+	else
+	{
+		singleton_arr[0] = 3;
+		singleton_arr[1] = 0;
+	}
 
 	/* ----- file I/O settings ----- */
 	char outFnameCanJ[50]; // to store candidates of J
@@ -73,6 +86,13 @@ int main(int argc, char ** argv)
 	int numOrbitJ = (JSize - JSize_remainder) / HSize;
 	int numOrbitK = (KSize - KSize_remainder) / HSize;
 	
+	if(orbit_choice == 2)
+	{
+		// customized orbit choice
+		--numOrbitK;
+		KSize_remainder += 2;
+	}
+
 	/* --- initialize selection vector --- */
 	fill(selectionJ.end() - numOrbitJ, selectionJ.end(), true);
 	fill(selectionK.end() - numOrbitK, selectionK.end(), true);
