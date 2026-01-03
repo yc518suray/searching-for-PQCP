@@ -24,3 +24,6 @@ echo finish sorting candidate files
 
 # find ADFs
 ./bin/find_ADF
+
+# print PQCPs
+./bin/find_even_PQCP results/$L-$TYPE-ADF.out $L $JSize $KSize

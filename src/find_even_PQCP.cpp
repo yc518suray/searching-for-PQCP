@@ -1,3 +1,4 @@
+// Usage: ./find_even_PQCP [ADF input file] [L] [XSize] [YSize]
 // This program prints even length PQCPs
 //
 // Author: Raymond Su, q36141155@gs.ncku.edu.tw
@@ -21,14 +22,15 @@ int main(int argc, char ** argv)
 {
 	/* ---- input index sets ----- */
 	ifstream infile(argv[1]);
-	char outfileName[50];
-	sprintf();
-	ofstream outfile();;
-
+	
 	int L = stoi(argv[2]);
 	int XSize = stoi(argv[3]);
-	int YSize = stoi(argv[3]);
+	int YSize = stoi(argv[4]);
 
+	char outfileName[50];
+	sprintf(outfileName, "results/%d-%d-%d-PQCP.out", L, XSize, YSize);
+	ofstream outfile(outfileName);
+	
 	vector<int> X(XSize, 0);
 	vector<int> Y(YSize, 0);
 	vector<int> a(L, 0);
@@ -49,7 +51,7 @@ int main(int argc, char ** argv)
 		{
 			for(int i = 0; i < L; i++) outfile << a[i] << " ";
 			outfile << ", ";
-			for(int i = 0; i < L; i++) outfile << b[i] << "";
+			for(int i = 0; i < L; i++) outfile << b[i] << " ";
 			outfile << endl;
 		}
 	}
@@ -65,8 +67,26 @@ int main(int argc, char ** argv)
 
 bool isPQCP(vector<int> a, vector<int> b, int L)
 {
-	int corr_a[L - 1][L - 1] = {0};
-	int corr_b[L - 1][L - 1] = {0};
+	int corr_a[L - 1] = {0};
+	int corr_b[L - 1] = {0};
+	int corr_sum[L - 1] = {0};
+
+	int mercy = 0;
+
+	for(int i = 0; i < L - 1; i++)
+	{
+		for(int j = 0; j < L; j++)
+		{
+			corr_a[i] += a[j] * a[(j + i + 1) % L];
+			corr_b[i] += b[j] * b[(j + i + 1) % L];
+		}
+		corr_sum[i] = corr_a[i] + corr_b[i];
+		if(corr_sum[i] == 4 || corr_sum[i] == -4) mercy++;
+		else if(corr_sum[i] != 0) mercy += 5;
+	}
+	
+	if(mercy == 2) return true;
+	else return false;
 }
 
 vector<int> toSeq(vector<int> x, int L)
