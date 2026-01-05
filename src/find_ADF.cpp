@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
 		}
 		stopJ = build_group(infileJ, vJs, diffTableJ, tagJ, 3, JSize, L);
 		stop = stopJ || stopK;
-		
+
 		/* --- tagJnext -> tag of next group	--- */
 		/* --- tagJ		-> tag of current group --- */
 		swap(tagJnext, tagJ, 3);
@@ -136,13 +136,7 @@ int main(int argc, char ** argv)
 					
 					for(vector<int> diffJ: diffTableJ)
 					{
-						//cout << "index_J = " << index_J;
-						//cout << ", pos1 = " << pos1 << ", pos2 = " << pos2 << endl;
-						
 						index_K = pos1 + match_to_K(diffJ, diffKs, 3, type);
-
-						//cout << "match_to_K complete" << endl;
-
 						if(index_K >= pos1)
 						{
 							/* --- Hurray! ADFs found! --- */
@@ -299,7 +293,8 @@ bool update_flock(ifstream & in, vv & vg, vv & dT, vv & taglist, int tag [], int
 	bool ready_to_build = false;	// ready to build the flock
 	if(taglist.empty())
 	{
-		for(int i = 0; i < N; i++) tmp_tag[i] = -10;
+		/* --- empty only at the very beginning --- */
+		for(int i = 0; i < N; i++) in >> tmp_tag[i];
 	}
 	else
 	{
@@ -310,15 +305,17 @@ bool update_flock(ifstream & in, vv & vg, vv & dT, vv & taglist, int tag [], int
 	{
 		if((taglist.size() == 1) || taglist.empty())
 		{
+			if(taglist.empty())
+			{
+				vector<int> t(N + 1, 0);
+				taglist.insert(taglist.end(), t);
+			}
+			for(int i = 0; i < N; i++) taglist[0][i] = tmp_tag[i];
+			
 			/* --- move to starting group of flock --- */
 			while(!included(tmp_tag, tag, N, type))
 			{
 				stop = to_next_group(in, tmp_tag, N);
-				if(taglist.empty())
-				{
-					vector<int> t(N + 1, 0);
-					taglist.insert(taglist.end(), t);
-				}
 				for(int i = 0; i < N; i++) taglist[0][i] = tmp_tag[i];
 				if(toofar(tmp_tag, tag, N)) break;
 				
@@ -361,7 +358,7 @@ bool update_flock(ifstream & in, vv & vg, vv & dT, vv & taglist, int tag [], int
 	/* --- add new groups to flock --- */
 	vector<int> tg(N + 1, 0);	// taglist element
 	int count = dT.size();		// count of K sets in the flock
-	
+
 	while(included(tmp_tag, tag, N, type))
 	{
 		/* --- add groups to flock --- */		

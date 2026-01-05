@@ -88,7 +88,7 @@ int main(int argc, char ** argv)
 	
 	if(orbit_choice == 2)
 	{
-		// customized orbit choice
+		// customized orbit choice -> to include all singletons
 		--numOrbitJ;
 		JSize_remainder += 2;
 	}

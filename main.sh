@@ -20,7 +20,7 @@ done
 sort $string results/$L-$JSize-$TYPE-CAN-J.out > results/$L-$JSize-$TYPE-CAN-J-sort.out
 sort $string results/$L-$KSize-$TYPE-CAN-K.out > results/$L-$KSize-$TYPE-CAN-K-sort.out
 
-echo -e "finish sorting candidate files\n\n"
+echo -e "finish sorting candidate files\n"
 
 # find ADFs
 ./bin/find_ADF

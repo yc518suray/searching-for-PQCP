@@ -60,6 +60,7 @@ int main(int argc, char ** argv)
 	}
 
 	if(file_empty) cout << "no ADF found" << endl;
+	else cout << "ADF (therefore PQCP) found!" << endl;
 
 	/* ----- finish program ----- */
 	outfile.close();
