@@ -38,8 +38,11 @@ int main(int argc, char ** argv)
 
 	/* ----- output found pairs ----- */
 	char ch;
+	bool file_empty = true;
+
 	while(infile >> X[0])
 	{
+		file_empty = false;
 		for(int i = 1; i < XSize; i++) infile >> X[i];
 		infile >> ch;
 		for(int i = 0; i < YSize; i++) infile >> Y[i];
@@ -55,6 +58,8 @@ int main(int argc, char ** argv)
 			outfile << endl;
 		}
 	}
+
+	if(file_empty) cout << "no ADF found" << endl;
 
 	/* ----- finish program ----- */
 	outfile.close();
