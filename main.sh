@@ -1,9 +1,9 @@
 # parameters
 L=46
 diffSize=$(($L / 2)) # size of difference table
-JSize=20
-KSize=19
-TYPE=1
+JSize=23
+KSize=18
+TYPE=2
 
 # generate ADF candidates
 ./bin/gen_ADF_cand

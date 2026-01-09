@@ -28,9 +28,9 @@ int match_to_K(vector<int> x, vv B, int N, int type);
 
 /* ----- some parameters ----- */
 int L = 46;
-int JSize = 20;
-int KSize = 19;
-int type = 1;
+int JSize = 23;
+int KSize = 18;
+int type = 2;
 
 /* ----- global variables ----- */
 
@@ -77,15 +77,6 @@ int main(int argc, char ** argv)
 	/* ----- examine each group in J set ----- */
 	while(!stop)
 	{
-		/* === debug === */
-		//cout << "now J tag = [ ";
-		//for(int i = 0; i < 3; i++) cout << tagJ[i] << " ";
-		//cout << "], K tag = [ ";
-		//for(int i = 0; i < 3; i++) cout << tmp_tagK[i] << " ";
-		//cout << "]" << endl;
-		//if(toofar(tmp_tagK, tagJ, 3)) cout << "tagK toofar from tagJ" << endl;
-		/* === debug === */
-
 		/* ----- update J group and K flock ----- */
 		if(!toofar(tmp_tagK, tagJ, 3))
 		{
@@ -102,14 +93,16 @@ int main(int argc, char ** argv)
 		/* ----- examine the current J group ----- */
 		if(listTagK.size() > 1)
 		{
+			/* ----- match with K flock if it's not empty ----- */
+
 			/* === debug === */
 			cout << "J tag = [";
 			for(int i = 0; i < 3; i++) cout << setw(3) << tagJ[i];
-			cout << "], K flock = [";
+			cout << " ], K flock = [";
 			for(int i = 0; i < 3; i++) cout << setw(3) << listTagK[0][i];
 			cout << ",";
 			for(int i = 0; i < 3; i++) cout << setw(3) << listTagK[listTagK.size() - 2][i];
-			cout << "], flock size = " << setw(6) << diffTableK.size();
+			cout << " ], flock size = " << setw(6) << diffTableK.size();
 			cout << ", " << setw(3) << listTagK.size() - 1 << " tags in flock" << endl;
 			/* === debug === */
 	
@@ -478,7 +471,7 @@ int match_to_K(vector<int> x, vv B, int N, int type)
 			if(mercy > 1) break;
 		}
 		/* --- found --- */
-		if(mercy == 1)
+		if(mercy <= 1)
 		{
 			return idx;
 		}

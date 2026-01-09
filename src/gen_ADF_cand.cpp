@@ -2,8 +2,8 @@
 // ADF = Almost Difference Family
 //
 // Author: Raymond Su q36141155@gs.ncku.edu.tw
-// Note: first line of output file is difference values (difference table)
-// and second line of output file is the element of set, and so on.
+// Note: first part of each line is difference values (difference table)
+// and second part of each line is the elements of index set.
 
 #include<iostream>
 #include<fstream>
@@ -30,31 +30,51 @@ int main(int argc, char ** argv)
 	// Note: K is always designated as the set with odd size
 	int L = 46;
 	int HSize = 2;
-	int H[HSize] = {1, 45}; // we are using this H today!
-	int JSize = 20;			// size of index set J, g0
-	int KSize = 19;			// size of index set K, g1
-	int type = 1;			// type 1 -> +4, type 2 -> -4
+	int H[HSize] = {1, 45}; 	// we are using this H today!
+	int JSize = 23;				// size of index set J, g0
+	int KSize = 18;				// size of index set K, g1
+	int type = 2;				// type 1 -> +4, type 2 -> -4
 	int lambda_choice[2] = {JSize + KSize - L / 2, JSize + KSize - L / 2 - 1};
 	int lambda = lambda_choice[type - 1];
-	int singleton_choice = 0;
-	int orbit_choice = 1;	// 1 -> normal choice 2 -> specified choice
+	int singleton_choice = 2;
+	int orbit_choice = 1;		// 1 -> normal choice 2 -> specified choice
 
 	int Z_L[L] = {0};	
 	fillZ_L(Z_L, L);
 
 	set<set<int>> orbit;
-	set<set<int>> singleton = {{23}, {0}};
-	int singleton_arr[2];
-	if(singleton_choice == 0)
+	set<set<int>> singleton = {{0}, {23}};
+	int singleton_arr[2][2];
+	switch(singleton_choice)
 	{
-		singleton_arr[0] = 0;
-		singleton_arr[1] = 23;
-	}
-	else
-	{
-		singleton_arr[0] = 23;
-		singleton_arr[1] = 0;
-	}
+		case 0:
+			singleton_arr[0][0] = 0;
+			singleton_arr[0][1] = 23;
+			singleton_arr[1][0] = 0;
+			singleton_arr[1][1] = 23;
+			break;
+		case 1:
+			singleton_arr[0][0] = 0;
+			singleton_arr[0][1] = 23;
+			singleton_arr[1][0] = 23;
+			singleton_arr[1][1] = 0;
+			break;
+		case 2:
+			singleton_arr[0][0] = 23;
+			singleton_arr[0][1] = 0;
+			singleton_arr[1][0] = 0;
+			singleton_arr[1][1] = 23;
+			break;
+		case 3:
+			singleton_arr[0][0] = 23;
+			singleton_arr[0][1] = 0;
+			singleton_arr[1][0] = 23;
+			singleton_arr[1][1] = 0;
+			break;
+		default:
+			cerr << "wrong singtleton choice!" << endl;
+			break;
+	};
 
 	/* ----- file I/O settings ----- */
 	char outFnameCanJ[50]; // to store candidates of J
@@ -89,8 +109,8 @@ int main(int argc, char ** argv)
 	if(orbit_choice == 2)
 	{
 		// customized orbit choice -> to include all singletons
-		--numOrbitJ;
-		JSize_remainder += 2;
+		--numOrbitK;
+		KSize_remainder += 2;
 	}
 
 	/* --- initialize selection vector --- */
@@ -104,7 +124,7 @@ int main(int argc, char ** argv)
 		expand_orbit(vJ, orbit_vec, selectionJ);
 		for(int i = 0; i < JSize_remainder; i++)
 		{
-			vJ.insert(vJ.end(), singleton_arr[i]);
+			vJ.insert(vJ.end(), singleton_arr[0][i]);
 		}
 		cal_diff(vJ, diff_table, L - 1, JSize);
 		sort(vJ.begin(), vJ.end());
@@ -127,7 +147,7 @@ int main(int argc, char ** argv)
 		expand_orbit(vK, orbit_vec, selectionK);
 		for(int i = 0; i < KSize_remainder; i++)
 		{
-			vK.insert(vK.end(), singleton_arr[i]);
+			vK.insert(vK.end(), singleton_arr[1][i]);
 		}
 		sort(vK.begin(), vK.end());
 		cal_diff(vK, diff_table, L - 1, KSize);
